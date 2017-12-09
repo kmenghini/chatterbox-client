@@ -34,7 +34,6 @@ app.loadMessages = function(data) {
     var username = '<h class="username">' + app.checkChars(element.username) + '</h>';
     $("#chats").append('<div class="chat">' + username + text + createdAt + roomname + '</div>');
     
-    
   });
 };
 
@@ -50,12 +49,29 @@ app.send = function(obj) {
   //debugger;//when the button is clicked
   
   var messagePackage = {  //can we say this.text?
-    username: window.location.search,
-    roomname: '4'
+    username: window.location.search,  //FIX ME
+    roomname: '4',
+    text: null
   };
-  _.extend(messagePackage, obj);
-  //console.log(this);
-  return $.post(this.server, messagePackage, app.fetch() ); //post this object thing
+  messagePackage.text = obj.text;
+  //_.extend(messagePackage, obj);
+  //console.log(obj);  
+
+  $.ajax({
+    url: this.server,
+    type: 'POST',
+    data: JSON.stringify(messagePackage),
+    contentType: 'application/json',
+    success: function(data) {
+      console.log('chatterbox sent your message.');
+    },
+    error: function(data) {
+      console.log('chatterbox failed to POST your message hint hint');
+    }
+  });
+  console.log($.ajax.args[0][0].type);
+  app.fetch();
+  //return $.post(this.server, messagePackage, app.fetch() ); //post this object thing
   //need to add a room?  Is that also server side?
 
 };
