@@ -51,6 +51,8 @@ app.loadMessages = function(data) {
 
     roomCheck = function(element) {
       console.log(app.currentRoomSelect);
+      //var to store the WHOLE HTML tag, and that tag has an inline CSS element if in friends
+        //and then below, just add that variable
       if (app.currentRoomSelect === null) {
         $("#chats").append('<div class="chat">' + username + text + createdAt + roomname + '</div>');
       } else if (element.roomname === app.currentRoomSelect) {
@@ -123,7 +125,7 @@ app.init = function() {
 
   $('#messageButton').on('click', function () {
     app.send( { text: $('#messageText').val() } ); 
-    // app.fetch(); 
+    app.fetch(); 
   }); 
 
   $('#roomButton').on('click', function () {
