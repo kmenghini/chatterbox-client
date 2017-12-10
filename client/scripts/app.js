@@ -2,11 +2,13 @@
 var app = {
   server: 'http://parse.sfm6.hackreactor.com/chatterbox/classes/messages/?order=-createdAt',
   friends: [],
-  rooms: []
+  rooms: [],
+  currentRoomSelect: null //set this, check it to filter messages
 };
 
 
 app.checkChars = function(string) {
+  // console.log('before', string);
   if (!string) {
     string = '';
   }
@@ -18,6 +20,7 @@ app.checkChars = function(string) {
       string = arr.join('');
     }
   }
+  // console.log('after', string);
   return string;
 };
 
@@ -25,9 +28,11 @@ app.formatDate = function(dateNum) {
   return moment(dateNum).format('MMMM Do YYYY, h:mm:ss a');
 };
 
+
 app.loadMessages = function(data) {
 //debugger;
   console.log(data.results[0]);
+
   $("#chats").replaceWith('<div id="chats"></div>');
   $("select").replaceWith('<select></select>');
   data.results.forEach(function(element) {
@@ -41,9 +46,23 @@ app.loadMessages = function(data) {
     var text = '<p class="text">' + app.checkChars(element.text) + '</p>';
     var updatedAt = element.updatedAt;
     var username = '<h class="username">' + app.checkChars(element.username) + '</h>';
-    $("#chats").append('<div class="chat">' + username + text + createdAt + roomname + '</div>');
+    
+
+
+    roomCheck = function(element) {
+      console.log(app.currentRoomSelect);
+      if (app.currentRoomSelect === null) {
+        $("#chats").append('<div class="chat">' + username + text + createdAt + roomname + '</div>');
+      } else if (element.roomname === app.currentRoomSelect) {
+        $("#chats").append('<div class="chat">' + username + text + createdAt + roomname + '</div>');
+      }
+    };
+    //only do the next line, if a selection was made, if the selection matches the roomname
+    roomCheck(element);
+  
   });
-  for(var i = 0; i < app.rooms.length; i++) {
+  
+  for (var i = 0; i < app.rooms.length; i++) {
     $("select").append('<option value="' + app.rooms[i] + '">' + app.rooms[i] + '</option>');  
   }
   
@@ -62,11 +81,12 @@ app.fetch = function() {
 app.send = function(obj) {
 
   console.log('inside send function');
+  console.log(app.currentRoomSelect);
   //console.log($location.search().username);
   //debugger;//when the button is clicked
   var messagePackage = {  //can we say this.text?
     username: window.location.search.split('=')[1],
-    roomname: '4',
+    roomname: app.currentRoomSelect,
     text: null
   };
   messagePackage.text = obj.text;
@@ -106,8 +126,11 @@ app.init = function() {
     // app.fetch(); 
   }); 
 
-  var selection = $('select').find(':selected').val(); //do somehting  
-  $('#chats').find('.'+ selection +'').closest('#chat').css({display: none});
+  $('#roomButton').on('click', function () {
+    app.currentRoomSelect = $('select').val(); 
+    // app.fetch(); 
+  });  
+
   //when a selection is made, 
     //any #chat that has a child node of .roomname === selection
     //stays  on the page,
